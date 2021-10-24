@@ -39,5 +39,9 @@ namespace HomeVideo.Util
         public static string SessionKey { get; set; }
 
         public static string VideoPath { get; set; }
+
+        public static string ImagePath { get; set; }
+
+        public static string Password { get; set; }
     }
 }

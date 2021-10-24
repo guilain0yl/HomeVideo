@@ -21,7 +21,8 @@ namespace HomeVideo.DTO
         [NotNullCondition("简介不能为空！")]
         public string Description { get; set; }
 
-        public DateTime PublishTime { get; set; } = DateTime.Now;
+        [NotNullCondition("发布年份不能为空！")]
+        public string PublishYear { get; set; }
 
         [NotNullCondition("视频地址不能为空！")]
         public string Path { get; set; }

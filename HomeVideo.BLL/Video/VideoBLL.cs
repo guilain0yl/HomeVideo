@@ -4,6 +4,7 @@ using Drapper.Core.SqlStringHelper;
 using HomeVideo.DAL.Video;
 using HomeVideo.DTO;
 using HomeVideo.DTO.BasicDTO;
+using HomeVideo.Util;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -43,7 +44,7 @@ namespace HomeVideo.BLL.Video
             return videoDAL.UpdateData(data, new string[] {
                 nameof(VideoInfo.Name),
                 nameof(VideoInfo.Cover),
-                nameof(VideoInfo.PublishTime),
+                nameof(VideoInfo.PublishYear),
                 nameof(VideoInfo.Path)
             }, filterInfos);
         }
@@ -52,7 +53,7 @@ namespace HomeVideo.BLL.Video
         {
             msg = string.Empty;
 
-            if (data.Password?.Trim() != "19951004")
+            if (data.Password?.Trim() != AppSetting.Password?.Trim())
             {
                 msg = "密码错误！";
                 return false;

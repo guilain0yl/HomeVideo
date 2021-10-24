@@ -135,68 +135,23 @@ $(function(){
     	}).api();
     }
 
-    load_table();
+    //load_table();
 
-    $("#banner_agent").change(function(){
-        let agentId=$("#banner_agent").val();
-        if(agentId>0)
-            load_customer(agentId,"banner_customer");
-        else
-            clear_customer("banner_customer");
-    });
+    function load_publish_year(){
+        let start_year=1972;
+        let end_year=(new Date()).getFullYear();
+        let options=`<option value="-1">--请选择--</option>`;;
 
-    $("#search_banner_agent").change(function(){
-        let agentId=$("#search_banner_agent").val();
-        if(agentId>0)
-            load_customer(agentId,"search_banner_customer");
-        else
-            clear_customer("search_banner_customer");
-    });
+        for(start_year;start_year<=end_year;start_year++){
+            options+=`<option value="${start_year}">${start_year}</option>`;
+        }
 
-    function clear_customer(tag){
-        let option=`<option value="-1">--请选择--</option>`;
-        $("#"+tag).html(option);
-        $("#"+tag).val(-1);
+        $("#publish_time").html(options);
     }
 
-    load_agent("banner_agent");
-    load_agent("search_banner_agent");
-    clear_customer("banner_customer");
-    clear_customer("search_banner_customer");
+    load_publish_year();
 
-    function load_agent(tag){
-        query_agent(function(res){
-            if(res.code==0){
-                let option=`<option value="-1">--请选择--</option>`;
-                let i=0;
-                for(i=0;i<res.data.length;i++){
-                    option+=`<option value="${res.data[i].id}">${res.data[i].name}</option>`;
-                }
-                $("#"+tag).html(option);
-            }else{
-                alert(res.message);
-            }
-        });
-    }
-
-    function load_customer(agentId,tag,customerId){
-        query_customer(agentId,function(res){
-            if(res.code==0){
-                let option=`<option value="-1">--请选择--</option>`;
-                let i=0;
-                for(i=0;i<res.data.length;i++){
-                    option+=`<option value="${res.data[i].id}">${res.data[i].name}</option>`;
-                }
-                $("#"+tag).html(option);
-                if(customerId>0)
-                    $("#"+tag).val(customerId);
-            }else{
-                alert(res.message);
-            }
-        });
-    }
-
-    upload_picture("banner_file",function(res){
+    upload_picture("cover_file",function(res){
         console.log(res);
         if(res.code==0){
             var url=res.data[0].filePaths[0];
@@ -245,28 +200,6 @@ $(function(){
     		}
     	});
     })
-
-    $("#update_show").click(function(){
-        let checkeds=$('.banner_select:checked');
-        
-        let ids=[];
-        checkeds.each(function(i){
-            ids.push($(this).val())
-        });
-
-        if(ids.length<1){
-            alert("无选中数据！");
-            return;
-        }
-
-        select_banner(ids,function(res){
-            if(res.code==0){
-                location.reload();
-            }else{
-                alert(res.message);
-            }
-        })
-    });
 
     $("#search_button").click(function(){
         load_table();

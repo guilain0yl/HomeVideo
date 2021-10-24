@@ -9,6 +9,8 @@ using Microsoft.Extensions.Hosting;
 using System.Text;
 using HomeVideo.Util;
 using Microsoft.AspNetCore.Http.Features;
+using System.IO;
+using System;
 
 namespace HomeVideo.Web
 {
@@ -43,12 +45,10 @@ namespace HomeVideo.Web
                 );
             });
 
-            //services.Configure<FormOptions>(options =>
-            //{
-            //    // Set the limit to 30 GB
-            //    // 1024*1024*1024*30
-            //    options.MultipartBodyLengthLimit = 32212254720;
-            //});
+            var imagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AppSetting.ImagePath);
+            CheckDirectory(imagePath);
+            var videoPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AppSetting.VideoPath);
+            CheckDirectory(videoPath);
 
             services.InitAutoFac();
             services.AddControllers(opt =>
@@ -58,6 +58,14 @@ namespace HomeVideo.Web
             {
                 opt.JsonSerializerOptions.IgnoreNullValues = true;
             });
+        }
+
+        private void CheckDirectory(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

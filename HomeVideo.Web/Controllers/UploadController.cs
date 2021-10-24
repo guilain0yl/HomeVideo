@@ -27,11 +27,7 @@ namespace HomeVideo.Web.Controllers
         {
             try
             {
-                var _targetFilePath = Path.Combine(Environment.CurrentDirectory, AppSetting.VideoPath);
-                if (!Directory.Exists(_targetFilePath))
-                {
-                    Directory.CreateDirectory(_targetFilePath);
-                }
+                var _targetFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AppSetting.VideoPath);
 
                 if (!MultipartRequestHelper.IsMultipartContentType(Request.ContentType))
                     return resultInfo.Fail("上传格式错误！");
@@ -90,6 +86,34 @@ namespace HomeVideo.Web.Controllers
             {
                 return resultInfo.Fail(ex.Message);
             }
+        }
+
+        [DisableRequestSizeLimit]
+        [TypeFilter(typeof(AllowAnonymousFilter))]
+        [HttpPost]
+        public async Task<JsonResult> UploadImage()
+        {
+            var files = Request.Form.Files;
+            if (files?.Count != 1) return resultInfo.Fail("请选择一张图片");
+
+            string physicalWebRootPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AppSetting.ImagePath);
+
+            var file = files.First();
+            if (file.Length <= 0)
+                return resultInfo.Fail("文件大小为零");
+
+            var filename = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.ToString().Trim('"');
+
+            var fileExt = Path.GetExtension(filename).TrimStart('.');
+            var newFilename = Guid.NewGuid().ToString() + $".{fileExt}";
+            string targetPath = Path.Combine(physicalWebRootPath, filename);
+            if (System.IO.File.Exists(targetPath))
+                System.IO.File.Delete(targetPath);
+
+            using var stream = new FileStream(targetPath, FileMode.Create);
+            await file.CopyToAsync(stream);
+
+            return resultInfo.Success(data: new { filename = newFilename });
         }
 
         private static readonly FormOptions _defaultFormOptions = new FormOptions();

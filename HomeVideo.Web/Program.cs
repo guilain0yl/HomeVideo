@@ -1,4 +1,5 @@
 using Autofac.Extensions.DependencyInjection;
+using HomeVideo.Util;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
