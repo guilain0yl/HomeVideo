@@ -1,0 +1,34 @@
+*.apk
+*.rar
+*.zip
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+results/
+
+# Visual Studio 2015 cache/options directory
+.vs/
+.vscode/
+# Uncomment if you have tasks that create the project's static files in wwwroot
+#wwwroot/
+site/wwwroot/
+
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+.svn/
+AopSdk/
+______APP/
+bccrypto/
+Service/
+/Translator/publish

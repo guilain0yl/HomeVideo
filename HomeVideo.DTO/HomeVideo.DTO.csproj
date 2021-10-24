@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common.Lib\Common.Lib.csproj" />
+    <ProjectReference Include="..\HomeVideo.Util\HomeVideo.Util.csproj" />
+  </ItemGroup>
+
+</Project>

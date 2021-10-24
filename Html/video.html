@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频管理</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="../favicon.ico"> 
+    <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.min.css?v=4.4.0" rel="stylesheet">
+    <link href="css/Common/dataTables.bootstrap.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css?v=4.1.1" rel="stylesheet">
+    <link href="css/loading.css?v=4.1.0" rel="stylesheet">
+
+    <style type="text/css">
+        #photoCover{
+            display:none;
+            width:50%;
+            height:auto;
+            }
+        #photoCover img{
+            width:100%;
+            height:100%;
+        }
+        .search_input {
+            height: 30px;
+        }
+        .search_input .form-control{
+            width:110px;
+            float: right;
+            padding:0 8px;
+            margin-right:10px;
+        }
+        .search_input>div {
+            line-height: 30px;
+            float: left;
+        }
+    </style>
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <div class="search_input">
+                            <div id="update_show" class="btn btn-info" style="float: right;margin-left: 10px;">展示
+                            </div>
+                            <div id="addTo" class="btn btn-info" data-toggle="modal" data-target="#add_banner_model" style="float: right;">添加
+                            </div>
+                            <div>
+                                名称：<input type="text" class="form-control" id="search_banner_name" maxlength="12">
+                            </div>
+                            <div id="search_customer">
+                                客户：
+                                <select name="" class="form-control" id="search_banner_customer">
+                                    <option value="-1">--请选择--</option>
+                            </select>
+                                <select name="" class="form-control" id="search_banner_agent">
+                            </select>
+                            </div>
+                            <button class="btn btn-info" style="float: left" id="search_button">查询</button>
+                        </div>
+                        <table class="table table-striped table-bordered table-hover " id="editable">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="select_all">&nbsp;&nbsp;全选</th>
+                                    <th>ID</th>
+                                    <th>名称</th>
+                                    <th>图片</th>
+                                    <th>客户</th>
+                                    <th>系统默认</th>
+                                    <th>是否展示</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 添加模态框 -->
+    <div class="modal fade" id="add_banner_model" tabindex="-1" role="dialog" aria-labelledby="add_banner_model" aria-hidden="true" style="margin:15% auto">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="add_banner_model_titile">添加页面</h4>
+                </div>
+                <form class="form-horizontal col-sm-12" role="form" style="padding-top:20px">
+                    <div class="form-group">
+                        <div class="helpBlock"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="banner_name" class="col-sm-3 control-label">Banner名称</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control clearAll" id="banner_name" placeholder="请输入Banner名称" maxlength="12">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="banner_file" class="col-sm-3 control-label">Banner</label>
+                        <div class="col-sm-7">
+                            <input type="file" id="banner_file"  style="display:none">
+                            <div class="form-control" id="photoCover" style="width:50%;">
+                                <img src="" alt="" id="photoCover_img">
+                            </div>
+                            <a class="btn btn-default" onclick="$('input[id=banner_file]').click();">选择文件</a>
+                            <input type="hidden" id="img_url" value="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="banner_customer" class="col-sm-3 control-label">商户名称</label>
+                        <div class="col-sm-7">
+                            <select name="" class="form-control col-sm-3" id="banner_agent" style="padding:0 4px;margin-right: 10px;display:inline;width: 40%;">
+                            </select>
+                            <select name="" class="form-control col-sm-3" id="banner_customer" style="padding:0 4px;margin-right: 10px;display:inline;width: 40%;">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="banner_default" class="col-sm-3 control-label">是否为默认图</label>
+                        <div class="col-sm-7">
+                            <input name="banner_default" type="radio" value="1" style="padding-top: 7px;"/>&nbsp;&nbsp;是
+                            <input name="banner_default" type="radio" value="0" checked="checked" style="margin-left: 10%; padding-top: 7px;"/>&nbsp;&nbsp;否
+                        </div>
+                    </div>
+                </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="cancel_model">关闭</button>
+                    <button type="button" class="btn btn-info" id="sure">提交更改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="loading_gif">
+        <img src="img/loading.gif" alt="">
+    </div>
+    <!-- 全局js -->
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+
+    <!-- 自定义js -->
+    <script src="js/private/banner.js"></script>
+    <script src="js/jquery.jeditable.js"></script>
+    <!-- Data Tables -->
+    <script src="js/jquery.dataTables.js"></script>
+    <script src="js/dataTables.bootstrap.js"></script>
+</body>
+</html>

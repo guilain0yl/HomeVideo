@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="6.1.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ArgCheck.Core\ArgCheck.Core.csproj" />
+    <ProjectReference Include="..\Cache.Core\Cache.Core.csproj" />
+    <ProjectReference Include="..\Drapper.Core\Drapper.Core.csproj" />
+    <ProjectReference Include="..\Logger.Core\NLogger.Core.csproj" />
+    <ProjectReference Include="..\Util\Util.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Token\" />
+  </ItemGroup>
+
+</Project>
