@@ -1,5 +1,5 @@
-var domain="http://tesa.eshitong.cn";
-var static_domain="http://tess.eshitong.cn";
+var domain="http://api.home-video.local";
+var static_domain="http://static.home-video.local";
 
 // 设备账号
 
