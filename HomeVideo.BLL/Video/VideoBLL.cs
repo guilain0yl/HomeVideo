@@ -45,7 +45,7 @@ namespace HomeVideo.BLL.Video
                 nameof(VideoInfo.Name),
                 nameof(VideoInfo.Cover),
                 nameof(VideoInfo.PublishYear),
-                nameof(VideoInfo.Path)
+                nameof(VideoInfo.Description)
             }, filterInfos);
         }
 
@@ -68,6 +68,7 @@ namespace HomeVideo.BLL.Video
         {
             List<FilterInfo> filterInfos = new List<FilterInfo>();
 
+
             if (data != null)
             {
                 data.TrimStringPropAll();
@@ -77,6 +78,10 @@ namespace HomeVideo.BLL.Video
                     filterInfos.Add(FilterInfo.Like(nameof(VideoInfo.Name)));
                 }
             }
+
+            data ??= new VideoInfo();
+            data.IsDeleted = false;
+            filterInfos.Add(FilterInfo.Equal(nameof(VideoInfo.IsDeleted)));
 
             return videoDAL.Pages(pageIndex, pageSize, out total, filterInfos, data);
         }

@@ -1,4 +1,5 @@
 document.write("<script language=javascript src='js/private/api.js'></script>");
+document.write("<script language=javascript src='js/private/play.js'></script>");
 $(function(){
 	if(!navigator.onLine){
         alert('网络未连接，请检查重试');
@@ -43,12 +44,11 @@ $(function(){
             pagingType: "full_numbers",
             serverSide: true,
             ajax:function(data,callback,settings){
-                let search_banner_name=$("#search_banner_name").val();
-                let search_banner_customer=$("#search_banner_customer").val();
+                let search_video_name=$("#search_video_name").val();
 
-                filters={"Name":search_banner_name,"CustomerId":search_banner_customer};
+                filters={"Name":search_video_name};
 
-            	page_banner((data.start / data.length)+1,data.length,filters,function(res){
+            	page_video((data.start / data.length)+1,data.length,filters,function(res){
             		if(res.code==0){
             			if(res.data.data==null){
             				res.data.data="";
@@ -61,62 +61,82 @@ $(function(){
             			show_data.data = res.data.data;
             			callback(show_data);
 
-            			$(".banner-delete").click(function(){
-            				if(confirm("确定要删除吗")){
-            					var id = $(this).parent().parent().find(".banner_id").text();
-            					delete_banner(id,function(res){
-            						if(res.code==0){
-            							load_table();
-            						}else{
-            							alert(res.message);
-            						}
-            					});
-            				}
+                        $(".video_cover").click(function(){
+                            let video_cover=$(this).parent().parent().find(".video_cover").attr("value");
+                            $("#show_cover_id").attr("src", get_pic_url(video_cover));
+                        });
+
+                        $(".video-modify").click(function(){
+                            let video_id = $(this).parent().parent().find(".video_name").attr("value");
+                            let video_name=$(this).parent().parent().find(".video_name").text();
+                            let video_cover=$(this).parent().parent().find(".video_cover").attr("value");
+                            let video_description=$(this).parent().parent().find(".video_description").text();
+                            let publishYear=$(this).parent().parent().find(".video_publishYear").text();
+                            let video_path=$(this).parent().parent().find(".video_publishYear").attr("value");
+
+                            $("#add_video_model_titile").text("修改页面");
+
+                            $("#video_id").val(video_id);
+                            $("#video_name").val(video_name);
+                            $("#photoCover_div").show();
+                            $("#photoCover_img").attr("src", get_pic_url(video_cover));
+                            $("#img_url").val(video_cover);
+                            $("#img_url").val(video_cover);
+                            $("#video_url").val(video_path);
+                            $("#publish_time").val(publishYear);
+                            $("#video_description").val(video_description);
+
+                            $("#upload_video_id").hide();
+                        });
+
+            			$(".video-delete").click(function(){
+            				let id = $(this).parent().parent().find(".video_name").attr("value");
+                            $("#delete_video_id").val(id);
+                            $("#delete_video_password").val("");
             			});
+
+                        $(".video-play").click(function(){
+                            play_video("http://static.home-video.local/video/0e09733f-ae25-4fed-bad5-a5d847a79333.mp4");
+                        });
             		}else{
             			alert(res.message);
             		}
             	});
             },
             columns:[
-                { "data": "id",
-                    "render": function ( data, type, full, meta ) {
-                        return `<span><input type="checkbox" class="banner_select" value="${full.id}"></span>`;
-                    }
-                },
-            	{ "data": "id",
-                    "render": function ( data, type, full, meta ) {
-                        return `<span class="banner_id">${data}</span>`;
-                    }
-                },
                 { "data": "name",
                     "render": function ( data, type, full, meta ) {
-                        return `<span class="banner_name">${data}</span>`;
+                        return `<span class="video_name" value="${full.id}">${data}</span>`;
                     }
                 },
-                { "data": "filePath",
+                { "data": "cover",
                     "render": function ( data, type, full, meta ) {
-                        return `<span class="banner_pic"><img src="${get_pic_url(data)}" style="width:50px;height:50px;"></span>`;
+                        return `<span class="video_cover" value="${full.cover}" data-toggle="modal" data-target="#show_cover_model">
+                        <img src="${get_pic_url(data)}" style="width:50px;height:50px;">
+                        </span>`;
                     }
                 },
-                { "data": "customerName",
+                { "data": "description",
                     "render": function ( data, type, full, meta ) {
-                        return `<span class="banner_customer">${data}</span>`;
+                        return `<span class="video_description">${data}</span>`;
                     }
                 },
-                { "data": "isDefault",
+                { "data": "publishYear",
                     "render": function ( data, type, full, meta ) {
-                        return `<span class="banner_check">${data?"是":"否"}</span>`;
+                        return `<span class="video_publishYear" value="${full.path}">${data}</span>`;
                     }
                 },
-                { "data": "isSelected",
+                { "data": "createTime",
                     "render": function ( data, type, full, meta ) {
-                        return `<span class="banner_check">${data?"是":"否"}</span>`;
+                        return `<span class="video_create">${convert_time(data)}</span>`;
                     }
                 },
                 { "data": null,
                     "render": function ( data, type, full, meta ) {
-                        return `<span class="btn btn-link banner-delete">删除</span>`
+                        return `
+                        <span class="btn btn-link video-play"  data-toggle="modal" data-target="#paly_video_model">播放</span>
+                        <span class="btn btn-link video-modify" data-toggle="modal" data-target="#add_video_model">修改</span>
+                        <span class="btn btn-link video-delete" data-toggle="modal" data-target="#delete_video_model">删除</span>`
                     }
                 }
             ],
@@ -135,7 +155,11 @@ $(function(){
     	}).api();
     }
 
-    //load_table();
+    load_table();
+
+    function show_cover(){
+
+    }
 
     function load_publish_year(){
         let start_year=1972;
@@ -147,6 +171,13 @@ $(function(){
         }
 
         $("#publish_time").html(options);
+
+        $("#publish_time").val(end_year);
+    }
+
+    function convert_time(str){
+        let date=new Date(str);
+        return `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
     }
 
     load_publish_year();
@@ -154,8 +185,8 @@ $(function(){
     upload_picture("cover_file",function(res){
         console.log(res);
         if(res.code==0){
-            var url=res.data[0].filePaths[0];
-            $("#photoCover").show();
+            var url=res.data.filename;
+            $("#photoCover_div").show();
             $("#photoCover_img").attr("src", get_pic_url(url));
             $("#img_url").val(url);
         }else{
@@ -163,45 +194,130 @@ $(function(){
         }
     });
 
-    $("#select_all").click(function(){
-        let checked=$("#select_all").is(':checked');
-        $('.banner_select').prop('checked',checked);
+    upload_video("video_file",function(percent) {
+        $(".progress_bar_title").show();
+        $("#progress_number_id").html(`${percent}%`);
+        $("#progress_id").css("width",`${percent}%`);
+    },function(res){
+        console.log(res);
+        if(res.code==0){
+            $("#progress_title_id").text("上传完成");
+            var url=res.data.file;
+            $("#video_url").val(url);
+        }else{
+            alert("文件上传失败！");
+        }
     });
+
+    function clear_progress(){
+        $("#progress_title_id").text("上传中...");
+        $("#progress_number_id").html("0%");
+        $("#progress_id").css("width","0%");
+         $(".progress_bar_title").hide();
+    }
+
     $("#sure").click(function(){
-        let banner_name=$("#banner_name").val();
-        let pic_url=$("#img_url").val();
-        let customer_id=$("#banner_customer").val();
-        let default_banner=$("input[name='banner_default']:checked").val()==1?true:false;
+        clear_progress();
+
+        let video_id=$("#video_id").val();
+        let video_name=$("#video_name").val();
+        let cover_url=$("#img_url").val();
+        let publish_time=$("#publish_time").val();
+        let video_url=$("#video_url").val();
+        let video_description=$("#video_description").val();
     	
-        if(banner_name==""){
-            $(".helpBlock").text("Banner名为空").show();
+        if(video_name==""){
+            $(".helpBlock").text("请填写视频名称").show();
             return;
         }else{
             $(".helpBlock").hide();
         }
-        if(pic_url==""){
-            $(".helpBlock").text("Banner文件为空").show();
+        if(cover_url==""){
+            $(".helpBlock").text("请上传封面文件").show();
             return;
         }else{
             $(".helpBlock").hide();
         }
-        if(customer_id<1){
-            $(".helpBlock").text("商户名称为空").show();
+        if(video_url==""){
+            $(".helpBlock").text("请上传视频文件").show();
+            return;
+        }else{
+            $(".helpBlock").hide();
+        }
+        if(video_description==""){
+            $(".helpBlock").text("请填写视频简介").show();
             return;
         }else{
             $(".helpBlock").hide();
         }
 
-    	add_banner(banner_name,pic_url,customer_id,default_banner,function(res){
-    		if(res.code==0){
-    			location.reload();
-    		}else{
-    			alert(res.message);
-    		}
-    	});
+        let callback=function(res){
+            if(res.code==0){
+                location.reload();
+            }else{
+                alert(res.message);
+            }
+        };
+
+        if(video_id>0){
+            modify_video(video_id,video_name,cover_url,video_description,publish_time,video_url,callback);
+        }else{
+            add_video(video_name,cover_url,video_description,publish_time,video_url,callback);
+        }
     })
+
+    $("#delete_video").click(function(){
+        let id=$("#delete_video_id").val();
+        let password=$("#delete_video_password").val();
+
+        if(id<1){
+            alert("ID 错误");
+            return;
+        }
+
+        if(password==""){
+            alert("密码为空");
+            return;
+        }
+
+        delete_video(id,password,function(res){
+            if(res.code==0){
+                load_table();
+            }else{
+                alert(res.message);
+            }
+        });
+
+        $("#delete_video_id").val("0");
+        $("#delete_video_password").val("");
+    });
 
     $("#search_button").click(function(){
         load_table();
+    });
+
+    $("#addTo").click(function(){
+        clear();
+    });
+
+    function clear(){
+        $("#add_video_model_titile").text("修改页面");
+        let end_year=(new Date()).getFullYear();
+        $("#video_id").val("0");
+        $("#video_name").val("");
+        $("#photoCover_div").hide();
+        $("#photoCover_img").attr("src", "");
+        $("#img_url").val("");
+        $("#video_url").val("");
+        $("#publish_time").val(end_year);
+        $("#video_description").val("");
+
+        $("#upload_video_id").show();
+    }
+
+    init_player("player");
+
+    $(".close_video_modal").click(function(){
+        clear_video();
     });
 });

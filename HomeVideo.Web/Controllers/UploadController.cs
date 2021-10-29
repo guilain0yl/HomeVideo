@@ -51,24 +51,10 @@ namespace HomeVideo.Web.Controllers
                         {
                             var trustedFileNameForDisplay = WebUtility.HtmlEncode(contentDisposition.FileName.Value);
 
-                            byte[] filedata = null;
-
-
-                            using (var memoryStream = new MemoryStream())
-                            {
-                                await section.Body.CopyToAsync(memoryStream);
-
-                                if (memoryStream.Length == 0)
-                                {
-                                    return resultInfo.Fail("文件为空！");
-                                }
-
-                                filename = MD5Helper.MD5Hash(memoryStream) + Path.GetExtension(trustedFileNameForDisplay);
-                                filedata = memoryStream.ToArray();
-                            }
+                            filename = Guid.NewGuid().ToString() + Path.GetExtension(trustedFileNameForDisplay);
 
                             using var targetStream = System.IO.File.Create(Path.Combine(_targetFilePath, filename));
-                            await targetStream.WriteAsync(filedata);
+                            await section.Body.CopyToAsync(targetStream);
                         }
                     }
 
@@ -93,27 +79,34 @@ namespace HomeVideo.Web.Controllers
         [HttpPost]
         public async Task<JsonResult> UploadImage()
         {
-            var files = Request.Form.Files;
-            if (files?.Count != 1) return resultInfo.Fail("请选择一张图片");
+            try
+            {
+                var files = Request.Form.Files;
+                if (files?.Count != 1) return resultInfo.Fail("请选择一张图片");
 
-            string physicalWebRootPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AppSetting.ImagePath);
+                string physicalWebRootPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, AppSetting.ImagePath);
 
-            var file = files.First();
-            if (file.Length <= 0)
-                return resultInfo.Fail("文件大小为零");
+                var file = files.First();
+                if (file.Length <= 0)
+                    return resultInfo.Fail("文件大小为零");
 
-            var filename = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.ToString().Trim('"');
+                var filename = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.ToString().Trim('"');
 
-            var fileExt = Path.GetExtension(filename).TrimStart('.');
-            var newFilename = Guid.NewGuid().ToString() + $".{fileExt}";
-            string targetPath = Path.Combine(physicalWebRootPath, filename);
-            if (System.IO.File.Exists(targetPath))
-                System.IO.File.Delete(targetPath);
+                var fileExt = Path.GetExtension(filename).TrimStart('.');
+                var newFilename = Guid.NewGuid().ToString() + $".{fileExt}";
+                string targetPath = Path.Combine(physicalWebRootPath, newFilename);
+                if (System.IO.File.Exists(targetPath))
+                    System.IO.File.Delete(targetPath);
 
-            using var stream = new FileStream(targetPath, FileMode.Create);
-            await file.CopyToAsync(stream);
+                using var stream = new FileStream(targetPath, FileMode.Create);
+                await file.CopyToAsync(stream);
 
-            return resultInfo.Success(data: new { filename = newFilename });
+                return resultInfo.Success(data: new { filename = newFilename });
+            }
+            catch (Exception ex)
+            {
+                return resultInfo.Fail(ex.Message);
+            }
         }
 
         private static readonly FormOptions _defaultFormOptions = new FormOptions();

@@ -12,6 +12,7 @@
     <link href="css/Common/dataTables.bootstrap.css" rel="stylesheet">
     <link href="css/animate.css" rel="stylesheet">
     <link href="css/style.css?v=4.1.1" rel="stylesheet">
+    <link href="css/player.css" rel="stylesheet">
     <link href="css/loading.css?v=4.1.0" rel="stylesheet">
 
     <style type="text/css">
@@ -37,6 +38,66 @@
             line-height: 30px;
             float: left;
         }
+        
+        .progress_bar .pro-bar {
+            background: hsl(0, 0%, 97%);
+            box-shadow: 0 1px 2px hsla(0, 0%, 0%, 0.1) inset;
+            height:4px;
+            margin-bottom: 12px;
+            margin-top: 20px;
+            position: relative;
+        }
+        .progress_bar .progress_bar_title{
+            /*color: hsl(218, 4%, 50%);*/
+            color: #D5D6E2;
+            font-size: 15px;
+            font-weight: 300;
+            position: relative;
+            top: -24px;
+            z-index: 1;
+        }
+        .progress_bar .progress_number{
+            float: right;
+            margin-top: 0px;
+        }
+        .progress_bar .progress-bar-inner {
+            background-color: hsl(0, 0%, 88%);
+            display: block;
+            width: 0;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: width 1s linear 0s;
+            animation: animate-positive 2s;
+        }
+        .progress_bar .progress-bar-inner:before {
+            content: "";
+            background-color: hsl(0, 0%, 100%);
+            border-radius: 50%;
+            width: 4px;
+            height: 4px;
+            position: absolute;
+            right: 1px;
+            top: 0;
+            z-index: 1;
+        }
+        .progress_bar .progress-bar-inner:after {
+            content: "";
+            width: 14px;
+            height: 14px;
+            background-color: inherit;
+            border-radius: 50%;
+            position: absolute;
+            right: -4px;
+            top: -5px;
+        }
+        @-webkit-keyframes animate-positive{
+            0% { width: 0%; }
+        }
+        @keyframes animate-positive{
+            0% { width: 0%; }
+        }
     </style>
 </head>
 
@@ -50,7 +111,7 @@
                             <div id="addTo" class="btn btn-info" data-toggle="modal" data-target="#add_video_model" style="float: right;">添加
                             </div>
                             <div>
-                                名称：<input type="text" class="form-control" id="search_banner_name" maxlength="64">
+                                名称：<input type="text" class="form-control" id="search_video_name" maxlength="128">
                             </div>
                             <button class="btn btn-info" style="float: left" id="search_button">查询</button>
                         </div>
@@ -74,7 +135,7 @@
         </div>
     </div>
     <!-- 添加模态框 -->
-    <div class="modal fade" id="add_video_model" tabindex="-1" role="dialog" aria-labelledby="add_video_model" aria-hidden="true" style="margin:15% auto">
+    <div class="modal fade" id="add_video_model" tabindex="-1" role="dialog" aria-labelledby="add_video_model" aria-hidden="true" style="margin:8% auto">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -82,6 +143,7 @@
                     <h4 class="modal-title" id="add_video_model_titile">添加页面</h4>
                 </div>
                 <form class="form-horizontal col-sm-12" role="form" style="padding-top:20px">
+                    <input type="hidden" id="video_id" value="0">
                     <div class="form-group">
                         <div class="helpBlock"></div>
                     </div>
@@ -95,7 +157,7 @@
                         <label for="cover_file" class="col-sm-3 control-label">封面</label>
                         <div class="col-sm-7">
                             <input type="file" id="cover_file"  style="display:none">
-                            <div class="form-control photoCover" style="width:50%;">
+                            <div class="form-control photoCover" id="photoCover_div" style="width:50%;">
                                 <img src="" alt="" id="photoCover_img">
                             </div>
                             <a class="btn btn-default" onclick="$('input[id=cover_file]').click();">选择文件</a>
@@ -109,12 +171,18 @@
                             </select>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="upload_video_id">
                         <label for="video_file" class="col-sm-3 control-label">视频</label>
                         <div class="col-sm-7">
                             <input type="file" id="video_file"  style="display:none">
-                            <div class="form-control photoCover" style="width:50%;">
-                                <img src="" alt="" id="video_file_img">
+                            <div class="progress_bar">
+                                <div class="pro-bar">
+                                    <small class="progress_bar_title" style="display:none;">
+                                        <span id="progress_title_id">上传中...</span>
+                                        <span class="progress_number" id="progress_number_id">0%</span>
+                                    </small>
+                                    <span class="progress-bar-inner" id="progress_id" style="background-color: #1abc9c; width: 0%;"></span>
+                                </div>
                             </div>
                             <a class="btn btn-default" onclick="$('input[id=video_file]').click();">选择文件</a>
                             <input type="hidden" id="video_url" value="">
@@ -134,6 +202,51 @@
             </div>
         </div>
     </div>
+
+    <!-- 输入密码 -->
+    <div class="modal fade" id="delete_video_model" tabindex="-1" role="dialog" aria-labelledby="delete_video_model" aria-hidden="true" style="margin:15% auto">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">密码</h4>
+                </div>
+                <form class="form-horizontal col-sm-12" role="form" style="padding-top:20px">
+                    <div class="form-group">
+                        <input type="hidden" id="delete_video_id" value="0">
+                        <div class="helpBlock"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="delete_video_password" class="col-sm-3 control-label">密码</label>
+                        <div class="col-sm-7">
+                            <input type="password" class="form-control" id="delete_video_password" placeholder="请输入密码" maxlength="18">
+                        </div>
+                    </div>
+                </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="delete_video_cancel_model">关闭</button>
+                    <button type="button" class="btn btn-info" id="delete_video">提交更改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 展示封面 -->
+    <div class="modal fade" id="show_cover_model" tabindex="-1" role="dialog" aria-labelledby="show_cover_model" aria-hidden="true" style="margin:5% auto">
+        <div class="modal-dialog">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <img style="width: 100%;height: 100%;" src="" id="show_cover_id">
+        </div>
+    </div>
+
+    <!-- 视频播放 -->
+    <div class="modal fade" id="paly_video_model" tabindex="-1" role="dialog" aria-labelledby="paly_video_model" aria-hidden="true" style="margin:5% auto" data-backdrop="static">
+        <div class="modal-dialog" style="width: 60%;">
+            <button type="button" class="close close_video_modal" data-dismiss="modal" aria-hidden="true" style="position: relative;left:16px;">&times;</button>
+            <div id="player"></div>
+        </div>
+    </div>
+
     <div id="loading_gif">
         <img src="img/loading.gif" alt="">
     </div>

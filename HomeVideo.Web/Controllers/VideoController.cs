@@ -13,21 +13,34 @@ namespace HomeVideo.Web.Controllers
     public class VideoController : BaseController
     {
         [TypeFilter(typeof(AllowAnonymousFilter))]
-        public JsonResult AddVideo(VideoInfo info)
-            => NoDataCaller(videoBLL.AddInfo, info);
-
-        [TypeFilter(typeof(AllowAnonymousFilter))]
-        public JsonResult ModifyVideo(VideoInfo info)
-            => NoDataCaller(videoBLL.UpdateInfo, info);
-
-        [TypeFilter(typeof(AllowAnonymousFilter))]
-        public JsonResult DeleteVideo(VideoInfo info)
-            => NoDataCaller(videoBLL.DeleteInfo, info);
-
-        [TypeFilter(typeof(AllowAnonymousFilter))]
-        public JsonResult PageVideo(PageArgs<VideoInfo> info)
+        [HttpPost]
+        public JsonResult AddVideo([FromForm] VideoInfo info)
         {
-            var data = videoBLL.Page(info.PageIndex, info.PageSize, out var total, info.Data, Token);
+            var flag = videoBLL.AddInfo(info, out resultInfo.extMessage, null);
+            return flag ? resultInfo.Success() : resultInfo.Fail();
+        }
+
+        [TypeFilter(typeof(AllowAnonymousFilter))]
+        [HttpPost]
+        public JsonResult ModifyVideo([FromForm] VideoInfo info)
+        {
+            var flag = videoBLL.UpdateInfo(info, out resultInfo.extMessage, null);
+            return flag ? resultInfo.Success() : resultInfo.Fail();
+        }
+
+        [TypeFilter(typeof(AllowAnonymousFilter))]
+        [HttpPost]
+        public JsonResult DeleteVideo([FromForm] VideoInfo info)
+        {
+            var flag = videoBLL.DeleteInfo(info, out resultInfo.extMessage, null);
+            return flag ? resultInfo.Success() : resultInfo.Fail();
+        }
+
+        [TypeFilter(typeof(AllowAnonymousFilter))]
+        [HttpPost]
+        public JsonResult PageVideo([FromForm] PageArgs<VideoInfo> info)
+        {
+            var data = videoBLL.Page(info.PageIndex, info.PageSize, out var total, info.Data, null);
 
             return data == null ? resultInfo.Fail() : resultInfo.Success(data: PageData.Create(data, total));
         }

@@ -15,13 +15,13 @@ function modify_video(id,name,cover,description,publishYear,path,success_callbac
     post(url,data,success_callback);
 }
 
-function delete_account(id,password,success_callback){
+function delete_video(id,password,success_callback){
     let url=domain+"/api/Video/DeleteVideo"
     let data={"Id":id,"Password":password};
     post(url,data,success_callback);
 }
 
-function page_account(page_index,page_size,filters,success_callback){
+function page_video(page_index,page_size,filters,success_callback){
     let url=domain+"/api/Video/PageVideo"
     let data={"PageIndex":page_index,"PageSize":page_size,"Data":filters};
     post(url,data,success_callback);
@@ -32,9 +32,6 @@ function post(url,param,success_callback){
     $.ajax({
         type:"POST",
         url:url,
-        beforeSend:function(XHR){
-            XHR.setRequestHeader('Authorization', get_token());
-        },
         data: param,
         dataType: "json",
         success:function(res){
@@ -51,21 +48,13 @@ function post(url,param,success_callback){
 
 function upload_picture(id,success_callback){
     let url=domain+"/api/Upload/UploadImage";
-    upload_file(id,url,success_callback);
-}
-
-function upload_video(id,success_callback){
-    let url=domain+"/api/Upload/UploadVideo";
-    upload_file(id,url,success_callback);
-}
-
-function upload_file(id,url,success_callback){
     $(`input[id=${id}]`).change(function(){
         let form_data = new FormData();
         form_data.append('file', $(`#${id}`)[0].files[0]);
          $.ajax({
             type:"POST",
             url:url,
+            data:form_data,
             contentType:false,
             processData:false,
             dataType:"json",
@@ -74,4 +63,36 @@ function upload_file(id,url,success_callback){
             }
          });
     });
+}
+
+function upload_video(id,onprogress_callback,success_callback){
+    let url=domain+"/api/Upload/UploadVideo";
+    $(`input[id=${id}]`).change(function(){
+        let form_data = new FormData();
+        form_data.append('file', $(`#${id}`)[0].files[0]);
+        let xhr=new XMLHttpRequest();
+        xhr.open('POST',url,true);
+
+        xhr.onreadystatechange=function(){
+            if(this.readyState==4){
+                success_callback(JSON.parse(this.responseText));
+            }
+        }
+        xhr.upload.onprogress=function(ev){
+            if(ev.lengthComputable){
+                let precent=parseFloat(100 * ev.loaded/ev.total).toFixed(2);
+                onprogress_callback(precent);
+            }
+        }
+
+        xhr.send(form_data);
+    });
+}
+
+function get_pic_url(url){
+    return static_domain+`/image/${url}`;
+}
+
+function get_video_url(url){
+    return static_domain+`/video/${url}`;
 }
