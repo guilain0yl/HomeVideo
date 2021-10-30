@@ -1,5 +1,5 @@
 document.write("<script language=javascript src='js/private/api.js'></script>");
-document.write("<script language=javascript src='js/private/play.js'></script>");
+document.write("<script language=javascript src='js/DPlayer.min.js'></script>");
 $(function(){
 	if(!navigator.onLine){
         alert('网络未连接，请检查重试');
@@ -96,7 +96,8 @@ $(function(){
             			});
 
                         $(".video-play").click(function(){
-                            play_video("http://static.home-video.local/video/0e09733f-ae25-4fed-bad5-a5d847a79333.mp4");
+                            let video_path=$(this).parent().parent().find(".video_publishYear").attr("value");
+                            player.play(get_video_url(video_path));
                         });
             		}else{
             			alert(res.message);
@@ -315,9 +316,28 @@ $(function(){
         $("#upload_video_id").show();
     }
 
-    init_player("player");
-
     $(".close_video_modal").click(function(){
-        clear_video();
+        player.destroy();
     });
+
+    let player={
+        __dplayer__:null,
+        play:function(video_url){
+            if(this.__dplayer__!=null)
+                destroy();
+
+            this.__dplayer__=new DPlayer({
+                container:document.getElementById('player'),
+                video:{
+                    url:video_url
+                }
+            });
+        },
+        destroy:function(){
+            if(this.__dplayer__!=null){
+                this.__dplayer__.destroy()
+                this.__dplayer__=null;
+            }
+        }
+    };
 });
