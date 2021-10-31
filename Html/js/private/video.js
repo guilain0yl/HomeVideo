@@ -332,6 +332,10 @@ $(function(){
                     url:video_url
                 }
             });
+            
+            this.__dplayer__.on("error",function(){
+                window.location=`vlc://${video_url}`;
+            });
         },
         destroy:function(){
             if(this.__dplayer__!=null){
